@@ -16,12 +16,10 @@ spec:
         service: mediawiki
     spec:
       containers:
-      - image: supreetraut/mediawiki-1.34
+      - image: gcr.io/mediawiki-337505/mediawiki:"${MEDIAWIKI_IMAGE_TAG}"
         imagePullPolicy: Always
         name: mediawiki
         ports:
         - containerPort: 80
         resources: {}
       restartPolicy: Always
-      serviceAccountName: ""
-      volumes: null

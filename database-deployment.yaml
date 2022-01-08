@@ -20,19 +20,13 @@ spec:
       containers:
       - env:
         - name: MYSQL_DATABASE
-          valueFrom:
-            configMapKeyRef:
-              key: MYSQL_DATABASE
-              name: env
+          value: "wikidatabase"
         - name: MYSQL_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: db-secret
-              key: MYSQL_ROOT_PASSWORD
-        image: saawasthi/mariadb-wiki
+          value: "Passw0rd"
+        image: gcr.io/mediawiki-337505/database:"${DATABASE_IMAGE_TAG}"
         imagePullPolicy: Always
         name: database
         ports:
         - containerPort: 3306
       restartPolicy: Always
-      serviceAccountName: ""
+      

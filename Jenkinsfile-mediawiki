@@ -1,0 +1,64 @@
+   pipeline {
+
+    parameter{
+
+        choice(name: 'PROJECT_ID', choices: 'mediawiki', description: 'Select the resource to be created')
+        choice(name: 'MEDIAWIKI_IMAGE_TAG', choices: 'mediawiki', description: 'Select the resource to be created')
+    }
+    
+     
+     environment {
+                       DEPLOY_ENV   =   "${env.BRANCH_NAME == 'master' ? 'prod': env.BRANCH_NAME}"
+    				   GOOGLE_APPLICATION_CREDENTIALS = credentials("${env.BRANCH_NAME}-credentials")
+                       
+                   }
+
+             
+ 	agent any
+               stages 
+  				{
+
+                         stage('Resource Deployment') 
+                         {
+                             steps {
+                                 dir ("${WORKSPACE}/mediawiki/") {
+                             sh '''
+                                   
+                                  gcloud auth activate-service-account --key-file "${GOOGLE_APPLICATION_CREDENTIALS}"
+                                  gcloud config set project "${PROJECT_ID}"
+                                  docker login -u oauth2accesstoken -p "$(gcloud auth print-access-token)" https://.gcr.io
+                                  docker build -t mediawiki .
+                                  docker tag mediawiki gcr.io/{PROJECT_ID}/mediawiki:{MEDIAWIKI_IMAGE_TAG}
+                                  docker push gcr.io/{PROJECT_ID}/mediawiki:{MEDIAWIKI_IMAGE_TAG}
+                                  cd ..
+                                  kubectl create -f mediawiki-deployment.yaml -n mediawiki
+                                  kubectl create -f mediawiki-service.yaml -n mediawiki
+                               '''
+                                    }   
+                        }
+                  
+                      
+                   }
+
+ 
+                  }
+
+  					post 
+  					{
+                        always {
+                            echo 'The code ran & initiated a build!'
+                            
+
+                            emailext body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
+                                recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}" , to: 'awasthisamriddhi93@gmail.com'
+
+                           echo 'email send'
+
+                           
+         
+          					}
+                    }
+  
+			}
+                                
