@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: database
+  name: database
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      service: database
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        network/wikinetwork: "true"
+        service: database
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: MYSQL_DATABASE
+              name: env
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: MYSQL_ROOT_PASSWORD
+        image: saawasthi/mariadb-wiki
+        imagePullPolicy: Always
+        name: database
+        ports:
+        - containerPort: 3306
+      restartPolicy: Always
+      serviceAccountName: ""
