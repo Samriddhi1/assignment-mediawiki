@@ -2,7 +2,7 @@ This repository contains automation code for mediawiki software deployment.
 
 The application has been deployed and can be accessed over following url:  http://34.70.97.229:8000
 
-Repository link: 
+Repository link: https://github.com/Samriddhi1/assignment-mediawiki.git
  
 The deployment has been automated using declarative jenkinsfile created one for mediawiki application and database each.
 
